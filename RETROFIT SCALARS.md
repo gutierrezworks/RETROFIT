@@ -41,14 +41,26 @@ interface StockApiService {
 
 object StockApi {
     // Only create it when need it with by lazy
-    val retrofitService: StockApiService by lazy { retrofit.create(StockApiService::class.java) }
+    val retrofitService: StockApiService = retrofit.create(StockApiService::class.java)
 }
 ```
 
 StockMainViewModel
 
 ```bash
+//Create a mutable state StockUiState that will be observed by the UI and
+// change on call requests
+sealed interface StockUiState {
+    data class Success(val photos: String) : StockUiState
+    object Error : StockUiState
+    object Loading : StockUiState
+}
+
 class StockMainViewModel: ViewModel() {
+
+    // To make it state:
+    // var stockUiState: StockUiState = StockUiState.Loading
+    var stockUiState: StockUiState by mutableStateOf(StockUiState.Loading)
 
     init {
         getStockData()
@@ -56,10 +68,50 @@ class StockMainViewModel: ViewModel() {
 
     fun getStockData() {
         viewModelScope.launch {
-            val listResult = StockApi.retrofitService.getStockData(symbol = "NVDA")
-            Log.d("listResult", listResult)
+            stockUiState = try {
+                val listResult = StockApi.retrofitService.getStockData(symbol = "NVDA")
+                Log.d("listResult", listResult)
+                StockUiState.Success(listResult)
+            } catch (e: Exception) {
+                StockUiState.Error
+            }
         }
     }
 }
 ```
 
+MainActivity
+
+```bash
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            StockTrackerTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    val viewModel: StockMainViewModel = StockMainViewModel()
+                    Greeting(
+                        name = "Android",
+                        stockUiState = viewModel.stockUiState,
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier, stockUiState: StockUiState) {
+    Text(
+        text = "Hello $name!",
+        modifier = modifier
+    )
+    when (stockUiState) {
+        is StockUiState.Loading -> "LoadingScreen(modifier = modifier.fillMaxSize())"
+        is StockUiState.Success -> "ResultScreen(stockUiState.photos, modifier = modifier.fillMaxWidth())"
+        is StockUiState.Error -> "ErrorScreen( modifier = modifier.fillMaxSize())"
+    }
+}
+```
