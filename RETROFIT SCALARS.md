@@ -12,8 +12,11 @@ Interface for retrofit
 ```bash
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    // Retrofit with Scalar Converter
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    // Kotlin serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    // Retrofit with Kotlin serialization Converter
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 ```
 
 ### Usage
