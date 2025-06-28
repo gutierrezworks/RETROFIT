@@ -13,10 +13,13 @@ Interface for retrofit
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     // Kotlin serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     // Retrofit with Kotlin serialization Converter
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
+    // OkHttp3 Interceptor
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 ```
 
 ### Usage
@@ -24,22 +27,38 @@ Interface for retrofit
 ApiService:
 
 ```bash
-private val BASE_URL = "https://www.alphavantage.co/"
-private val API_KEY = "V27PW7M6ZUFOEGO3"
-private val FUNCTION = "TIME_SERIES_DAILY"
+private val BASE_URL = "https://data.alpaca.markets/v2/"
+private val API_KEY = "PKUFKA91DA8Z0GAH0M9F"
+private val API_KEY_SECRET = "jAXOzTcsRe4kgDp8cRuUL3ahOd0abcaYcHpiBXmb"
+
+private val _client =
+    OkHttpClient.Builder()
+        .addInterceptor(HttpLoggingInterceptor()
+            .apply { level = HttpLoggingInterceptor.Level.BODY })
+        .build()
+
+private val json = Json {
+    ignoreUnknownKeys = true // Allows parsing even if there are unknown keys in the JSON response
+    isLenient = true         // Makes the parser more lenient
+}
+
 private val retrofit = Retrofit.Builder()
-    .addConverterFactory(ScalarsConverterFactory.create())
+    .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+    .client(_client)
     .baseUrl(BASE_URL)
     .build()
 
 interface StockApiService {
 
-     @GET("query")
+     @GET("stocks/bars")
      suspend fun getStockData(
-         @Query("apikey") apiKey: String = API_KEY,
-         @Query("function") function: String = FUNCTION,
-         @Query("symbol") symbol: String,
-     ): String
+         @Header("APCA-API-KEY-ID") apiKey: String = API_KEY,
+         @Header("APCA-API-SECRET-KEY") apiKeySecret: String = API_KEY_SECRET,
+         @Query("symbols") symbol: String,
+         @Query("timeframe") timeframe: String,
+         @Query("start") start: String,
+         @Query("sort") sort: String = "desc",
+         ): Stocks
 }
 
 object StockApi {
@@ -51,10 +70,8 @@ object StockApi {
 StockMainViewModel
 
 ```bash
-//Create a mutable state StockUiState that will be observed by the UI and
-// change on call requests
 sealed interface StockUiState {
-    data class Success(val photos: String) : StockUiState
+    data class Success(val bars: Stocks) : StockUiState
     object Error : StockUiState
     object Loading : StockUiState
 }
@@ -66,16 +83,17 @@ class StockMainViewModel: ViewModel() {
     var stockUiState: StockUiState by mutableStateOf(StockUiState.Loading)
 
     init {
-        getStockData()
+        getStockData("NVDA", "1D", "2025-06-25")
     }
 
-    fun getStockData() {
+    fun getStockData(symbol: String, timeframe: String, start: String) {
         viewModelScope.launch {
             stockUiState = try {
-                val listResult = StockApi.retrofitService.getStockData(symbol = "NVDA")
-                Log.d("listResult", listResult)
+                val listResult = StockApi.retrofitService.getStockData(symbol = symbol, timeframe = timeframe, start = start)
+                Log.d("listResult", listResult.toString())
                 StockUiState.Success(listResult)
             } catch (e: Exception) {
+                Log.e("listResult", e.stackTraceToString())
                 StockUiState.Error
             }
         }
