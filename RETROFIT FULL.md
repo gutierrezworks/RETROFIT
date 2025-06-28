@@ -118,3 +118,16 @@ fun Greeting(name: String, modifier: Modifier = Modifier, stockUiState: StockUiS
     }
 }
 ```
+
+DATA
+
+```bash
+@Serializable
+data class Bar(
+    @SerialName("o") val opening: String,
+    @SerialName("c") val close: String,
+    @SerialName("t") val time: String,
+    @SerialName("v") val volume: String
+)
+```
+
