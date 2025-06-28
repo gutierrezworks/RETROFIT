@@ -119,7 +119,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier, stockUiState: StockUiS
 }
 ```
 
-DATA
+Data
 
 ```bash
 @Serializable
