@@ -111,8 +111,9 @@ StockScreen
 @Composable
 fun StockMain(
     stockUiState: StockUiState,
-    modifier: Modifier
-) {
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+    ) {
     when (stockUiState) {
         is StockUiState.Loading -> LoadingScreen()
         is StockUiState.Success -> ResultScreen(stockUiState.stocks)
