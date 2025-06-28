@@ -10,16 +10,20 @@ Interface for retrofit
 ### Add dependencies
 
 ```bash
-    // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    // Kotlin serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
-    // Retrofit with Kotlin serialization Converter
-    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
+plugins {
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
+}
 
-    // OkHttp3 Interceptor
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+// Retrofit
+implementation("com.squareup.retrofit2:retrofit:2.9.0")
+// Kotlin serialization
+implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+// Retrofit with Kotlin serialization Converter
+implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+implementation("com.squareup.okhttp3:okhttp:4.11.0")
+
+// OkHttp3 Interceptor
+implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 ```
 
 ### Usage
