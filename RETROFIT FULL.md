@@ -105,39 +105,47 @@ class StockMainViewModel: ViewModel() {
 }
 ```
 
-MainActivity
+StockScreen
 
 ```bash
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            StockTrackerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    val viewModel: StockMainViewModel = StockMainViewModel()
-                    Greeting(
-                        name = "Android",
-                        stockUiState = viewModel.stockUiState,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
+@Composable
+fun StockMain(
+    stockUiState: StockUiState,
+    modifier: Modifier
+) {
+    when (stockUiState) {
+        is StockUiState.Loading -> LoadingScreen()
+        is StockUiState.Success -> ResultScreen(stockUiState.stocks)
+        is StockUiState.Error -> ErrorScreen()
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier, stockUiState: StockUiState) {
+fun ResultScreen(
+    stocks: Stocks,
+    modifier: Modifier = Modifier
+) {
     Text(
-        text = "Hello $name!",
-        modifier = modifier
+        text = stocks.bars.get("NVDA").toString()
     )
-    when (stockUiState) {
-        is StockUiState.Loading -> "LoadingScreen(modifier = modifier.fillMaxSize())"
-        is StockUiState.Success -> "ResultScreen(stockUiState.photos, modifier = modifier.fillMaxWidth())"
-        is StockUiState.Error -> "ErrorScreen( modifier = modifier.fillMaxSize())"
-    }
+}
+
+@Composable
+fun LoadingScreen(
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "Loading"
+    )
+}
+
+@Composable
+fun ErrorScreen(
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "Error"
+    )
 }
 ```
 
