@@ -145,11 +145,21 @@ Data
 
 ```bash
 @Serializable
+data class Stocks(
+    @SerialName("bars") val bars: Map<String, List<Bar>>,
+    @SerialName("next_page_token") val nextPageToken: String? = null
+)
+
+@Serializable
 data class Bar(
-    @SerialName("o") val opening: String,
-    @SerialName("c") val close: String,
+    @SerialName("o") val opening: Double,
+    @SerialName("c") val close: Double,
     @SerialName("t") val time: String,
-    @SerialName("v") val volume: String
+    @SerialName("v") val volume: Long,
+    @SerialName("h") val high: Double,
+    @SerialName("l") val low: Double,
+    @SerialName("n") val transactions: Long,
+    @SerialName("vw") val volumeWeightedPrice: Double
 )
 ```
 
