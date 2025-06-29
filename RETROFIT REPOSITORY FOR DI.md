@@ -165,3 +165,13 @@ Surface(
         }
 
 ```
+
+| ❓ Is Hilt doing the same as the codelab’s Application pattern? | Yes, but automatically and more cleanly. |
+
+It replaces AppContainer with a Dagger/Hilt @Module
+
+It replaces MyViewModel.Factory with Hilt’s @HiltViewModel
+
+It manages lifecycles, scopes, and graph creation for you
+
+
